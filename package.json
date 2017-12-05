@@ -1,0 +1,51 @@
+{
+  "name": "webpack-scheme-helper",
+  "version": "0.1.0",
+  "description": "Minimizes the amount of configuration necessary for webpack build 'schemes'.  Source is in TypeScript.",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/electricessence/webpack-scheme-helper.git"
+  },
+  "keywords": [
+    "webpack",
+    "webpack2",
+    "scheme",
+    "schemes",
+    "helper",
+    "typescript"
+  ],
+  "author": "webpack2",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/electricessence/webpack-scheme-helper/issues"
+  },
+  "homepage": "https://github.com/electricessence/webpack-scheme-helper#readme",
+  "dependencies": {
+    "assets-webpack-plugin": "^3.5.1",
+    "clean-webpack-plugin": "^0.1.17",
+    "css-loader": "^0.28.7",
+    "less": "^2.7.3",
+    "less-loader": "^4.0.5",
+    "path": "^0.12.7",
+    "scss-loader": "0.0.1",
+    "style-loader": "^0.19.0",
+    "ts-loader": "^3.2.0",
+    "uglifyjs-webpack-plugin": "^1.1.2"
+  },
+  "peerDependencies": {
+    "webpack": "^3.9.1"
+  },
+  "devDependencies": {
+    "@types/assets-webpack-plugin": "^3.5.0",
+    "@types/clean-webpack-plugin": "^0.1.0",
+    "@types/webpack": "^3.8.1",
+    "typescript": "^2.6.2",
+    "uglifyjs-webpack-plugin": "^1.1.2",
+    "webpack": "^3.9.1"
+  }
+}
