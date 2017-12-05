@@ -2,10 +2,10 @@ import * as Path from 'path';
 import * as Webpack from 'webpack';
 import * as CleanPlugin from 'clean-webpack-plugin';
 import * as AssetsPlugin from 'assets-webpack-plugin';
-import * as UglifyJsPlugin from 'uglifyjs-webpack-plugin';
 import { SOURCE_MAP } from './constants/Devtools';
 import { JS, TS, CSS, SCSS, LESS } from './constants/Extensions';
 import Loader from './constants/Loaders';
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 export class Settings
 {
