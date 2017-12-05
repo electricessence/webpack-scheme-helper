@@ -7,12 +7,12 @@ import { JS, TS, CSS, SCSS, LESS } from './constants/Extensions';
 import Loader from './constants/Loaders';
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
-export class Settings
+export class Scheme
 {
 	/**
 	 * File system path where build is deployed.
 	 */
-	buildPath:string;
+	buildDirectory:string;
 
 	/**
 	 * Files can other sub-files like maps, etc.
@@ -20,10 +20,10 @@ export class Settings
 	filePattern:string = '[name]/[chunkhash]';
 
 	javascript:boolean = true;
-	typescript:boolean = false;
-	css:boolean = false;
-	scss:boolean = false;
-	less:boolean = false;
+	typescript:boolean = true;
+	css:boolean = true;
+	scss:boolean = true;
+	less:boolean = true;
 	fonts:boolean = false;
 	images:boolean = false;
 
@@ -32,77 +32,6 @@ export class Settings
 
 	clean:boolean = true;
 	minify:boolean = true;
-
-
-}
-
-export class Builder
-{
-	readonly settings: Settings;
-
-	constructor()
-	{
-		this.settings = new Settings();
-	}
-
-	javascript(enabled:boolean = true):this {
-		this.settings.javascript = enabled;
-		return this;
-	}
-
-	typescript(enabled:boolean = true):this {
-		this.settings.typescript = enabled;
-		return this;
-	}
-
-	css(enabled:boolean = true):this {
-		this.settings.css = enabled;
-		return this;
-	}
-
-	scss(enabled:boolean = true):this {
-		this.settings.scss = enabled;
-		return this;
-	}
-
-	less(enabled:boolean = true):this {
-		this.settings.less = enabled;
-		return this;
-	}
-
-	fonts(enabled:boolean = true):this {
-		this.settings.fonts = enabled;
-		return this;
-	}
-
-	images(enabled:boolean = true):this {
-		this.settings.images = enabled;
-		return this;
-	}
-
-	cache(enabled:boolean = true):this
-	{
-		this.settings.cache = enabled;
-		return this;
-	}
-
-	sourceMaps(enabled:boolean = true):this
-	{
-		this.settings.sourceMaps = enabled;
-		return this;
-	}
-
-	clean(enabled:boolean = true):this
-	{
-		this.settings.clean = enabled;
-		return this;
-	}
-
-	minify(enabled:boolean = true):this
-	{
-		this.settings.minify = enabled;
-		return this;
-	}
 
 	/**
 	 * The step by step method by which the config is built.
@@ -114,15 +43,15 @@ export class Builder
 	render(
 		entry: Webpack.Entry,
 		projectFileRoot:string,
-		buildDirectory:string):Webpack.Configuration
+		buildDirectory:string = this.scheme.buildDirectory):Webpack.Configuration
 	{
 		const buildPath = Path.resolve(projectFileRoot, buildDirectory);
 		if(!buildPath)
 			throw "No buildPath specified";
 
-		const settings = this.settings;
-		let filePattern = settings.filePattern;
-		if(settings.minify) filePattern += ".min";
+		const _ = this;
+		let filePattern = _.filePattern;
+		if(_.minify) filePattern += ".min";
 
 		const config:Webpack.Configuration = {
 			entry: entry,
@@ -132,19 +61,19 @@ export class Builder
 				path: buildPath
 			},
 			resolve: { extensions: [] },
-			cache: settings.cache,
+			cache: _.cache,
 			module: { rules: [] },
 			plugins: []
 		};
 		const rules = (<Webpack.NewModule>config.module).rules;
 		const plugins = config.plugins;
 
-		if(settings.javascript)
+		if(_.javascript)
 		{
 			config.resolve.extensions.push(JS);
 		}
 
-		if(settings.typescript)
+		if(_.typescript)
 		{
 			config.resolve.extensions.push(TS);
 			rules.push({
@@ -154,7 +83,7 @@ export class Builder
 			});
 		}
 
-		if(settings.css)
+		if(_.css)
 		{
 			config.resolve.extensions.push(CSS);
 			rules.push({
@@ -163,15 +92,15 @@ export class Builder
 					loader: Loader.STYLE
 				}, {
 					loader: Loader.CSS,
-					options: { sourceMap: settings.sourceMaps }
+					options: { sourceMap: _.sourceMaps }
 				}, {
 					loader: Loader.SCSS,
-					options: { sourceMap: settings.sourceMaps }
+					options: { sourceMap: _.sourceMaps }
 				}]
 			});
 		}
 
-		if(settings.scss)
+		if(_.scss)
 		{
 			config.resolve.extensions.push(SCSS);
 			rules.push({
@@ -180,15 +109,15 @@ export class Builder
 					loader: Loader.STYLE
 				}, {
 					loader: Loader.CSS,
-					options: { sourceMap: settings.sourceMaps }
+					options: { sourceMap: _.sourceMaps }
 				}, {
 					loader: Loader.SCSS,
-					options: { sourceMap: settings.sourceMaps }
+					options: { sourceMap: _.sourceMaps }
 				}]
 			});
 		}
 
-		if(settings.less)
+		if(_.less)
 		{
 			config.resolve.extensions.push(LESS);
 			rules.push({
@@ -197,18 +126,18 @@ export class Builder
 					loader: Loader.STYLE
 				}, {
 					loader: Loader.CSS,
-					options: { sourceMap: settings.sourceMaps }
+					options: { sourceMap: _.sourceMaps }
 				}, {
 					loader: Loader.LESS,
-					options: { sourceMap: settings.sourceMaps }
+					options: { sourceMap: _.sourceMaps }
 				}]
 			});
 		}
 
-		if(settings.sourceMaps)
+		if(_.sourceMaps)
 			config.devtool = SOURCE_MAP;
 
-		if(settings.clean) plugins.push(
+		if(_.clean) plugins.push(
 			new CleanPlugin(buildPath,{root:projectFileRoot}));
 
 		plugins.push(
@@ -219,15 +148,109 @@ export class Builder
 
 		plugins.push(
 			new Webpack.optimize.CommonsChunkPlugin({ names: names }));
-	
+
 		plugins.push(
 			new AssetsPlugin({ path:buildPath }));
 
-		if(settings.minify) plugins.push(
-			new UglifyJsPlugin({sourceMap:settings.sourceMaps}));
-		
+		if(_.minify) plugins.push(
+			new UglifyJsPlugin({sourceMap:_.sourceMaps}));
+
 		return config;
+	}
+
+}
+
+export module Scheme
+{
+	export const defaults:Scheme = Object.freeze(new Scheme());
+
+	export class Builder
+	{
+		readonly scheme: Scheme;
+
+		constructor()
+		{
+			this.scheme = new Scheme();
+		}
+
+		javascript(enabled:boolean = true):this {
+			this.scheme.javascript = enabled;
+			return this;
+		}
+
+		typescript(enabled:boolean = true):this {
+			this.scheme.typescript = enabled;
+			return this;
+		}
+
+		css(enabled:boolean = true):this {
+			this.scheme.css = enabled;
+			return this;
+		}
+
+		scss(enabled:boolean = true):this {
+			this.scheme.scss = enabled;
+			return this;
+		}
+
+		less(enabled:boolean = true):this {
+			this.scheme.less = enabled;
+			return this;
+		}
+
+		fonts(enabled:boolean = true):this {
+			this.scheme.fonts = enabled;
+			return this;
+		}
+
+		images(enabled:boolean = true):this {
+			this.scheme.images = enabled;
+			return this;
+		}
+
+		cache(enabled:boolean = true):this
+		{
+			this.scheme.cache = enabled;
+			return this;
+		}
+
+		sourceMaps(enabled:boolean = true):this
+		{
+			this.scheme.sourceMaps = enabled;
+			return this;
+		}
+
+		clean(enabled:boolean = true):this
+		{
+			this.scheme.clean = enabled;
+			return this;
+		}
+
+		minify(enabled:boolean = true):this
+		{
+			this.scheme.minify = enabled;
+			return this;
+		}
+
+		/**
+		 * The step by step method by which the config is built.
+		 * @param entry Standard Webpack entry map.
+		 * @param projectFileRoot File system path to the project root.
+		 * @param buildDirectory Sub-path to the build folder.
+		 * @returns {Webpack.Configuration}
+		 */
+
+		render(
+			entry: Webpack.Entry,
+			projectFileRoot:string,
+			buildDirectory:string = this.scheme.buildDirectory):Webpack.Configuration
+		{
+			return this.scheme.render(entry, projectFileRoot, buildDirectory);
+		}
 	}
 }
 
-export default Builder;
+export default Scheme;
+
+
+

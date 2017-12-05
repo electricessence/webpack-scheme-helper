@@ -9,7 +9,7 @@ Schemes are a typical way that files are deployed.  This utility simplifies the 
 The following example takes all the dependencies defined in the package.json along with any manually specified entries.
 
 ```ts
-import ConfigBuilder from './ConfigBuilder';
+import Scheme from 'webpack-scheme-helper';
 import { PROJECT, BUILD, WEB, PACKAGE } from '../constants'; // Your own set of constants
 
 const modules = Object.keys(PACKAGE.JSON.dependencies);
@@ -19,10 +19,10 @@ export const entry = {
 for (var e of modules)
 	if (!entry[e]) entry[e] = e;
 
-const builder = new ConfigBuilder();
+const builder = new Scheme.Builder();
 
 export default builder
-	.typescript() // Enables .ts and .tsx files.
+	.typescript() // Enables .ts and .tsx files. (on by default)
 	.minify(false) // Disables minification.
 	.render(
 		entry, // Standard webpack entry map.
@@ -30,6 +30,20 @@ export default builder
 		BUILD.DIRECTORY // The sub folder to build to.
 	);
 ```
+
+or
+
+```ts
+export default Scheme
+	.defaults
+	.render(
+		entry,
+		PROJECT.ROOT,
+		BUILD.DIRECTORY
+	);
+```
+
+More schemes can be added over time.
 
 ## Assumptions / Opinions
 

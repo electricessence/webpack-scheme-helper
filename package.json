@@ -1,6 +1,6 @@
 {
   "name": "webpack-scheme-helper",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Minimizes the amount of configuration necessary for webpack build 'schemes'.  Source is in TypeScript.",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",

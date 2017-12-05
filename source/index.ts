@@ -1,6 +1,6 @@
 export * from './constants';
 
-import Builder from './ConfigBuilder';
-export {Builder};
+import Scheme from './Scheme';
+export {Scheme};
 //noinspection JSUnusedGlobalSymbols
-export default Builder;
+export default Scheme;
