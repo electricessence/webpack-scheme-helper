@@ -2,7 +2,7 @@ import * as Path from 'path';
 import * as Webpack from 'webpack';
 import * as CleanPlugin from 'clean-webpack-plugin';
 import * as AssetsPlugin from 'assets-webpack-plugin';
-import { SOURCE_MAP } from './constants/Devtools';
+import {SOURCE_MAP} from './constants/Devtools';
 import {JS, TS, CSS, SCSS, LESS, JSX, TSX} from './constants/Extensions';
 import Loader from './constants/Loaders';
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
@@ -56,7 +56,7 @@ export class Scheme
 	 * @returns {Webpack.Configuration}
 	 */
 	render(
-		entry: Webpack.Entry,
+		entry:Webpack.Entry,
 		projectFileRoot:string,
 		buildDirectory:string = this.buildDirectory):Webpack.Configuration
 	{
@@ -75,9 +75,9 @@ export class Scheme
 				chunkFilename: filePattern + JS,
 				path: buildPath
 			},
-			resolve: { extensions: [] },
+			resolve: {extensions: []},
 			cache: _.cache,
-			module: { rules: [] },
+			module: {rules: []},
 			plugins: []
 		};
 		const rules = (<Webpack.NewModule>config.module).rules;
@@ -106,12 +106,14 @@ export class Scheme
 			extensions.push(CSS);
 			rules.push({
 				test: /\.css$/,
-				use: [{
-					loader: Loader.STYLE
-				}, {
-					loader: Loader.CSS,
-					options: {sourceMap: _.sourceMaps}
-				}]
+				use: [
+					{
+						loader: Loader.STYLE
+					}, {
+						loader: Loader.CSS,
+						options: {sourceMap: _.sourceMaps}
+					}
+				]
 			});
 		}
 
@@ -120,15 +122,17 @@ export class Scheme
 			extensions.push(SCSS);
 			rules.push({
 				test: /\.scss$/,
-				use: [{
-					loader: Loader.STYLE
-				}, {
-					loader: Loader.CSS,
-					options: { sourceMap: _.sourceMaps }
-				}, {
-					loader: Loader.SCSS,
-					options: { sourceMap: _.sourceMaps }
-				}]
+				use: [
+					{
+						loader: Loader.STYLE
+					}, {
+						loader: Loader.CSS,
+						options: {sourceMap: _.sourceMaps}
+					}, {
+						loader: Loader.SCSS,
+						options: {sourceMap: _.sourceMaps}
+					}
+				]
 			});
 		}
 
@@ -137,15 +141,17 @@ export class Scheme
 			extensions.push(LESS);
 			rules.push({
 				test: /\.less$/,
-				use: [{
-					loader: Loader.STYLE
-				}, {
-					loader: Loader.CSS,
-					options: { sourceMap: _.sourceMaps }
-				}, {
-					loader: Loader.LESS,
-					options: { sourceMap: _.sourceMaps }
-				}]
+				use: [
+					{
+						loader: Loader.STYLE
+					}, {
+						loader: Loader.CSS,
+						options: {sourceMap: _.sourceMaps}
+					}, {
+						loader: Loader.LESS,
+						options: {sourceMap: _.sourceMaps}
+					}
+				]
 			});
 		}
 
@@ -155,7 +161,13 @@ export class Scheme
 			{
 				rules.push({
 					test: pattern,
-					use: `file-loader?name=_fonts/[name]/[hash].[ext]`
+					use: {
+						loader: 'file-loader',
+						options: {
+							name: "../_client/_fonts/[name]/[hash].[ext]",
+							useRelativePath: true
+						}
+					}
 				});
 			};
 			addFont(/\.svg$/);//,"image/svg+xml");
@@ -165,11 +177,26 @@ export class Scheme
 			addFont(/\.eot$/);//,"application/vnd.ms-fontobject");
 		}
 
+		if(_.images)
+		{
+			rules.push(
+			{
+				test: /\.(png|jpg|jpeg|gif)$/,
+				use: {
+					loader: 'file-loader',
+					options: {
+						name: "_images/[name]/[hash].[ext]",
+						useRelativePath: true
+					}
+				}
+			});
+		}
+
 		if(_.sourceMaps)
 			config.devtool = SOURCE_MAP;
 
 		if(_.clean) plugins.push(
-			new CleanPlugin(buildPath,{root:projectFileRoot}));
+			new CleanPlugin(buildPath, {root: projectFileRoot}));
 
 		plugins.push(
 			new Webpack.HashedModuleIdsPlugin());
@@ -178,13 +205,13 @@ export class Scheme
 		names.push("common");
 
 		plugins.push(
-			new Webpack.optimize.CommonsChunkPlugin({ names: names }));
+			new Webpack.optimize.CommonsChunkPlugin({names: names}));
 
 		plugins.push(
-			new AssetsPlugin({ path:buildPath }));
+			new AssetsPlugin({path: buildPath}));
 
 		if(_.minify) plugins.push(
-			new UglifyJsPlugin({sourceMap:_.sourceMaps}));
+			new UglifyJsPlugin({sourceMap: _.sourceMaps}));
 
 		return config;
 	}
@@ -197,44 +224,51 @@ export module Scheme
 
 	export class Builder
 	{
-		readonly scheme: Scheme;
+		readonly scheme:Scheme;
 
 		constructor()
 		{
 			this.scheme = new Scheme();
 		}
 
-		javascript(enabled:boolean = true):this {
+		javascript(enabled:boolean = true):this
+		{
 			this.scheme.javascript = enabled;
 			return this;
 		}
 
-		typescript(enabled:boolean = true):this {
+		typescript(enabled:boolean = true):this
+		{
 			this.scheme.typescript = enabled;
 			return this;
 		}
 
-		css(enabled:boolean = true):this {
+		css(enabled:boolean = true):this
+		{
 			this.scheme.css = enabled;
 			return this;
 		}
 
-		scss(enabled:boolean = true):this {
+		scss(enabled:boolean = true):this
+		{
 			this.scheme.scss = enabled;
 			return this;
 		}
 
-		less(enabled:boolean = true):this {
+		less(enabled:boolean = true):this
+		{
 			this.scheme.less = enabled;
 			return this;
 		}
 
-		fonts(enabled:boolean = true):this {
+		fonts(enabled:boolean = true):this
+		{
 			this.scheme.fonts = enabled;
 			return this;
 		}
 
-		images(enabled:boolean = true):this {
+		images(enabled:boolean = true):this
+		{
 			this.scheme.images = enabled;
 			return this;
 		}
@@ -272,7 +306,7 @@ export module Scheme
 		 */
 
 		render(
-			entry: Webpack.Entry,
+			entry:Webpack.Entry,
 			projectFileRoot:string,
 			buildDirectory:string = this.scheme.buildDirectory):Webpack.Configuration
 		{
