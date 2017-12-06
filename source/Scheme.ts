@@ -45,6 +45,10 @@ export class Scheme
 	cache:boolean = true;
 	sourceMaps:boolean = true;
 
+	provide:{[key:string]:any};
+
+	common:string[];
+
 	clean:boolean = true;
 	minify:boolean = true;
 
@@ -201,11 +205,15 @@ export class Scheme
 		plugins.push(
 			new Webpack.HashedModuleIdsPlugin());
 
-		const names = Object.keys(entry);
-		names.push("common");
+		const common = _.common || [];
+		if(common.indexOf(("common"))==-1)
+			common.push("common");
 
 		plugins.push(
-			new Webpack.optimize.CommonsChunkPlugin({names: names}));
+			new Webpack.optimize.CommonsChunkPlugin({names: common}));
+
+		if(_.provide) plugins.push(
+			new Webpack.ProvidePlugin(_.provide));
 
 		plugins.push(
 			new AssetsPlugin({path: buildPath}));
@@ -282,6 +290,18 @@ export module Scheme
 		sourceMaps(enabled:boolean = true):this
 		{
 			this.scheme.sourceMaps = enabled;
+			return this;
+		}
+
+		provide(config:{[key:string]:any} = null):this
+		{
+			this.scheme.provide = config;
+			return this;
+		}
+
+		common(config:string[] = null):this
+		{
+			this.scheme.common = config;
 			return this;
 		}
 
