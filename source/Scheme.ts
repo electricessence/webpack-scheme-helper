@@ -17,7 +17,7 @@ export class Scheme
 	/**
 	 * Files can other sub-files like maps, etc.
 	 */
-	filePattern:string = '[name]/[chunkhash]';
+	filePattern:string = '[name]/name-[chunkhash]';
 
 	javascript:boolean = true;
 	typescript:boolean = true;
@@ -87,15 +87,12 @@ export class Scheme
 		{
 			config.resolve.extensions.push(CSS);
 			rules.push({
-				test: /\.scss$/,
+				test: /\.css$/,
 				use: [{
 					loader: Loader.STYLE
 				}, {
 					loader: Loader.CSS,
-					options: { sourceMap: _.sourceMaps }
-				}, {
-					loader: Loader.SCSS,
-					options: { sourceMap: _.sourceMaps }
+					options: {sourceMap: _.sourceMaps}
 				}]
 			});
 		}
