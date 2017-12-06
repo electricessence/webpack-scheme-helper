@@ -1,6 +1,6 @@
 {
   "name": "webpack-scheme-helper",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Minimizes the amount of configuration necessary for webpack build 'schemes'.  Source is in TypeScript.",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -29,6 +29,7 @@
     "assets-webpack-plugin": "^3.5.1",
     "clean-webpack-plugin": "^0.1.17",
     "css-loader": "^0.28.7",
+    "file-loader": "^1.1.5",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
     "path": "^0.12.7",
@@ -45,7 +46,6 @@
     "@types/clean-webpack-plugin": "^0.1.0",
     "@types/webpack": "^3.8.1",
     "typescript": "^2.6.2",
-    "uglifyjs-webpack-plugin": "^1.1.2",
     "webpack": "^3.9.1"
   }
 }

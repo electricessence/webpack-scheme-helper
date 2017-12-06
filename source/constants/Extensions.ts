@@ -8,10 +8,4 @@ export const CSS: string = ".css";
 export const SCSS: string = ".scss";
 export const LESS: string = ".less";
 
-export const CSS: string = ".css";
-export const SCSS: string = ".scss";
-export const LESS: string = ".less";
-
-
-
 Object.freeze(exports);

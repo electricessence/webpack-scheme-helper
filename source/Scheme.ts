@@ -7,17 +7,18 @@ import {JS, TS, CSS, SCSS, LESS, JSX, TSX} from './constants/Extensions';
 import Loader from './constants/Loaders';
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
-const NAME:string = "[name]";
-const CHUNKHASH:string = "[chunkhash]";
-const EXT:string = "[ext]";
+const _NAME:string = "[name]";
+const _CHUNKHASH:string = "[chunkhash]";
+const _EXT:string = ".[ext]";
 
 
 export module FilePattern
 {
-	export const NAME:string = NAME;
-	export const CHUNKHASH:string = CHUNKHASH;
-	export const EXT:string = EXT;
+	export const NAME:string = _NAME;
+	export const CHUNKHASH:string = _CHUNKHASH;
+	export const EXT:string = _EXT;
 }
+
 Object.freeze(FilePattern);
 
 
@@ -31,7 +32,7 @@ export class Scheme
 	/**
 	 * Files can other sub-files like maps, etc.
 	 */
-	filePattern:string = `${NAME}/${NAME}-${CHUNKHASH}`;
+	filePattern:string = `${_NAME}/${_NAME}-${_CHUNKHASH}`;
 
 	javascript:boolean = true;
 	typescript:boolean = true;
@@ -57,7 +58,7 @@ export class Scheme
 	render(
 		entry: Webpack.Entry,
 		projectFileRoot:string,
-		buildDirectory:string = this.scheme.buildDirectory):Webpack.Configuration
+		buildDirectory:string = this.buildDirectory):Webpack.Configuration
 	{
 		const buildPath = Path.resolve(projectFileRoot, buildDirectory);
 		if(!buildPath)
@@ -70,8 +71,8 @@ export class Scheme
 		const config:Webpack.Configuration = {
 			entry: entry,
 			output: {
-				filename: filePattern + EXT,
-				chunkFilename: filePattern + EXT,
+				filename: filePattern + JS,
+				chunkFilename: filePattern + JS,
 				path: buildPath
 			},
 			resolve: { extensions: [] },
@@ -150,18 +151,18 @@ export class Scheme
 
 		if(_.fonts)
 		{
-			const addFont = function(pattern:RegExp, type:string)
+			const addFont = function(pattern:RegExp)//, type:string)
 			{
 				rules.push({
 					test: pattern,
-					use: `url?limit=65000&mimetype=${type}&name=${buildDirectory}/fonts/[name]-[hash].[ext]`
+					use: `file-loader?name=_fonts/[name]/[hash].[ext]`
 				});
 			};
-			addFont(/\.svg$/,"image/svg+xml");
-			addFont(/\.woff$/,"application/font-woff");
-			addFont(/\.woff2$/,"application/font-woff2");
-			addFont(/\.[ot]tf$/,"application/octet-stream");
-			addFont(/\.eot$/,"application/vnd.ms-fontobject");
+			addFont(/\.svg$/);//,"image/svg+xml");
+			addFont(/\.woff$/);//,"application/font-woff");
+			addFont(/\.woff2$/);//,"application/font-woff2");
+			addFont(/\.[ot]tf$/);//,"application/octet-stream");
+			addFont(/\.eot$/);//,"application/vnd.ms-fontobject");
 		}
 
 		if(_.sourceMaps)
