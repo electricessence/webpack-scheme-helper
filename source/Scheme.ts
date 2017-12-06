@@ -3,9 +3,23 @@ import * as Webpack from 'webpack';
 import * as CleanPlugin from 'clean-webpack-plugin';
 import * as AssetsPlugin from 'assets-webpack-plugin';
 import { SOURCE_MAP } from './constants/Devtools';
-import { JS, TS, CSS, SCSS, LESS } from './constants/Extensions';
+import {JS, TS, CSS, SCSS, LESS, JSX, TSX} from './constants/Extensions';
 import Loader from './constants/Loaders';
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+
+const NAME:string = "[name]";
+const CHUNKHASH:string = "[chunkhash]";
+const EXT:string = "[ext]";
+
+
+export module FilePattern
+{
+	export const NAME:string = NAME;
+	export const CHUNKHASH:string = CHUNKHASH;
+	export const EXT:string = EXT;
+}
+Object.freeze(FilePattern);
+
 
 export class Scheme
 {
@@ -17,7 +31,7 @@ export class Scheme
 	/**
 	 * Files can other sub-files like maps, etc.
 	 */
-	filePattern:string = '[name]/name-[chunkhash]';
+	filePattern:string = `${NAME}/${NAME}-${CHUNKHASH}`;
 
 	javascript:boolean = true;
 	typescript:boolean = true;
@@ -56,8 +70,8 @@ export class Scheme
 		const config:Webpack.Configuration = {
 			entry: entry,
 			output: {
-				filename: filePattern + JS,
-				chunkFilename: filePattern + JS,
+				filename: filePattern + EXT,
+				chunkFilename: filePattern + EXT,
 				path: buildPath
 			},
 			resolve: { extensions: [] },
@@ -67,25 +81,28 @@ export class Scheme
 		};
 		const rules = (<Webpack.NewModule>config.module).rules;
 		const plugins = config.plugins;
+		const extensions = config.resolve.extensions;
 
 		if(_.javascript)
 		{
-			config.resolve.extensions.push(JS);
+			extensions.push(JS);
+			extensions.push(JSX);
 		}
 
 		if(_.typescript)
 		{
-			config.resolve.extensions.push(TS);
+			extensions.push(TS);
+			extensions.push(TSX);
 			rules.push({
 				test: /.+\.tsx?$/,
 				use: 'ts-loader',
-				exclude: /node_modules/,
+				exclude: /node_modules/
 			});
 		}
 
 		if(_.css)
 		{
-			config.resolve.extensions.push(CSS);
+			extensions.push(CSS);
 			rules.push({
 				test: /\.css$/,
 				use: [{
@@ -99,7 +116,7 @@ export class Scheme
 
 		if(_.scss)
 		{
-			config.resolve.extensions.push(SCSS);
+			extensions.push(SCSS);
 			rules.push({
 				test: /\.scss$/,
 				use: [{
@@ -116,7 +133,7 @@ export class Scheme
 
 		if(_.less)
 		{
-			config.resolve.extensions.push(LESS);
+			extensions.push(LESS);
 			rules.push({
 				test: /\.less$/,
 				use: [{
@@ -129,6 +146,22 @@ export class Scheme
 					options: { sourceMap: _.sourceMaps }
 				}]
 			});
+		}
+
+		if(_.fonts)
+		{
+			const addFont = function(pattern:RegExp, type:string)
+			{
+				rules.push({
+					test: pattern,
+					use: `url?limit=65000&mimetype=${type}&name=${buildDirectory}/fonts/[name]-[hash].[ext]`
+				});
+			};
+			addFont(/\.svg$/,"image/svg+xml");
+			addFont(/\.woff$/,"application/font-woff");
+			addFont(/\.woff2$/,"application/font-woff2");
+			addFont(/\.[ot]tf$/,"application/octet-stream");
+			addFont(/\.eot$/,"application/vnd.ms-fontobject");
 		}
 
 		if(_.sourceMaps)
