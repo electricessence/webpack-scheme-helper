@@ -38,8 +38,8 @@ export class Scheme
 	css:boolean = true;
 	scss:boolean = true;
 	less:boolean = true;
-	fonts:boolean = false;
-	images:boolean = false;
+	fonts:boolean = true;
+	images:boolean = true;
 
 	cache:boolean = true;
 	sourceMaps:boolean = true;
