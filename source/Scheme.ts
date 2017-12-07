@@ -1,30 +1,18 @@
 import * as Path from 'path';
-import * as Webpack from 'webpack';
+import * as webpack from 'webpack';
 import * as CleanPlugin from 'clean-webpack-plugin';
 import * as AssetsPlugin from 'assets-webpack-plugin';
 import {SOURCE_MAP} from './constants/Devtools';
 import {JS, TS, CSS, SCSS, LESS, JSX, TSX} from './constants/Extensions';
-import Loader from './constants/Loaders';
+import {NAME, HASH, CHUNKHASH, EXT} from "./constants/FilePathPattern";
+import * as Loader from './constants/Loaders';
+import * as Pattern from './constants/LoaderPatterns';
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-
-const _NAME:string = "[name]";
-const _CHUNKHASH:string = "[chunkhash]";
-const _EXT:string = ".[ext]";
-
-
-export module FilePattern
-{
-	export const NAME:string = _NAME;
-	export const CHUNKHASH:string = _CHUNKHASH;
-	export const EXT:string = _EXT;
-}
 
 export interface IMap<T>
 {
 	[key:string]:T
 }
-
-Object.freeze(FilePattern);
 
 function merge<T>(source:IMap<T>, target:IMap<T> = {}):IMap<T>
 {
@@ -56,7 +44,7 @@ export class Scheme
 	/**
 	 * Files can other sub-files like maps, etc.
 	 */
-	filePattern:string = `${_NAME}/${_NAME}-${_CHUNKHASH}`;
+	filePattern:string = `${NAME}/${NAME}-${CHUNKHASH}`;
 
 	javascript:boolean = true;
 	typescript:boolean = true;
@@ -69,8 +57,14 @@ export class Scheme
 	cache:boolean = true;
 	sourceMaps:boolean = true;
 
+	/**
+	 * What modules do you want exposed to the global scope.
+	 */
 	provide:IMap<any>;
 
+	/**
+	 * What modules do you want 'made common'.
+	 */
 	common:string[];
 
 	clean:boolean = true;
@@ -78,15 +72,15 @@ export class Scheme
 
 	/**
 	 * The step by step method by which the config is built.
-	 * @param entries Standard Webpack entry map.
+	 * @param entries Standard webpack entry map.
 	 * @param projectFileRoot File system path to the project root.
 	 * @param buildDirectory Sub-path to the build folder.
-	 * @returns {Webpack.Configuration}
+	 * @returns {webpack.Configuration}
 	 */
 	render(
-		entries?:Webpack.Entry,
+		entries?:webpack.Entry,
 		projectFileRoot:string = this.projectFileRoot,
-		buildDirectory:string  = this.buildDirectory):Webpack.Configuration
+		buildDirectory:string  = this.buildDirectory):webpack.Configuration
 	{
 		if(!projectFileRoot)
 			throw "No projectFileRoot specified";
@@ -105,7 +99,7 @@ export class Scheme
 		let filePattern = _.filePattern;
 		if(_.minify) filePattern += ".min";
 
-		const config:Webpack.Configuration = {
+		const config:webpack.Configuration = {
 			entry: entries,
 			output: {
 				filename: filePattern + JS,
@@ -117,7 +111,7 @@ export class Scheme
 			module: {rules: []},
 			plugins: []
 		};
-		const rules = (<Webpack.NewModule>config.module).rules;
+		const rules = (<webpack.NewModule>config.module).rules;
 		const plugins = config.plugins;
 		const extensions = config.resolve.extensions;
 
@@ -132,8 +126,8 @@ export class Scheme
 			extensions.push(TS);
 			extensions.push(TSX);
 			rules.push({
-				test: /.+\.tsx?$/,
-				use: 'ts-loader',
+				test: Pattern.TS,
+				use: Loader.TS,
 				exclude: '/node_modules/'
 			});
 		}
@@ -142,7 +136,7 @@ export class Scheme
 		{
 			extensions.push(CSS);
 			rules.push({
-				test: /\.css$/,
+				test: Pattern.CSS,
 				use: [
 					{
 						loader: Loader.STYLE
@@ -158,7 +152,7 @@ export class Scheme
 		{
 			extensions.push(SCSS);
 			rules.push({
-				test: /\.scss$/,
+				test: Pattern.SCSS,
 				use: [
 					{
 						loader: Loader.STYLE
@@ -177,7 +171,7 @@ export class Scheme
 		{
 			extensions.push(LESS);
 			rules.push({
-				test: /\.less$/,
+				test: Pattern.LESS,
 				use: [
 					{
 						loader: Loader.STYLE
@@ -192,22 +186,15 @@ export class Scheme
 			});
 		}
 
-		let relativeNamePrefix = "";
-		for(let i = 0; i<buildDirectory.split("/").length; i++)
-		{
-			relativeNamePrefix += "../"
-		}
+		const ASSET_NAME = `${NAME}/${HASH}${EXT}`;
 
 		if(_.fonts)
 		{
 			rules.push({
-				test: /\.(eot|svg|[ot]tf|woff2?)$/,
+				test: Pattern.FONT,
 				use: {
-					loader: 'file-loader',
-					options: {
-						name: `${relativeNamePrefix}${buildDirectory}/_fonts/[name]/[hash].[ext]`,
-						useRelativePath: true
-					}
+					loader: Loader.FILE,
+					options: { name: `${ASSET_NAME}` }
 				}
 			});
 		}
@@ -216,13 +203,10 @@ export class Scheme
 		{
 			rules.push(
 				{
-					test: /\.(png|jpg|jpeg|gif)$/,
+					test: Pattern.IMAGE,
 					use: {
-						loader: 'file-loader',
-						options: {
-							name: `${relativeNamePrefix}${buildDirectory}/_images/[name]/[hash].[ext]`,
-							useRelativePath: true
-						}
+						loader: Loader.FILE,
+						options: { name: `${ASSET_NAME}` }
 					}
 				});
 		}
@@ -234,17 +218,17 @@ export class Scheme
 			new CleanPlugin(buildPath, {root: projectFileRoot}));
 
 		plugins.push(
-			new Webpack.HashedModuleIdsPlugin());
+			new webpack.HashedModuleIdsPlugin());
 
 		const common = _.common || [];
 		if(common.indexOf(("common"))== -1)
 			common.push("common");
 
 		plugins.push(
-			new Webpack.optimize.CommonsChunkPlugin({names: common}));
+			new webpack.optimize.CommonsChunkPlugin({names: common}));
 
 		if(_.provide) plugins.push(
-			new Webpack.ProvidePlugin(_.provide));
+			new webpack.ProvidePlugin(_.provide));
 
 		plugins.push(
 			new AssetsPlugin({path: buildPath}));
@@ -369,25 +353,7 @@ export module Scheme
 			return this;
 		}
 
-		/**
-		 * The step by step method by which the config is built.
-		 * @param entry Standard Webpack entry map.
-		 * @param projectFileRoot File system path to the project root.
-		 * @param buildDirectory Sub-path to the build folder.
-		 * @returns {Webpack.Configuration}
-		 */
-
-		render(
-			entry?:Webpack.Entry,
-			projectFileRoot:string = this.scheme.projectFileRoot,
-			buildDirectory:string  = this.scheme.buildDirectory):Webpack.Configuration
-		{
-			return this.scheme.render(entry, projectFileRoot, buildDirectory);
-		}
 	}
 }
 
 export default Scheme;
-
-
-
