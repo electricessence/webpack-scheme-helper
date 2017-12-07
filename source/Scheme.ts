@@ -26,10 +26,12 @@ export interface IMap<T>
 
 Object.freeze(FilePattern);
 
-function merge<T>(source:IMap<T>,target:IMap<T> = {}):IMap<T>
+function merge<T>(source:IMap<T>, target:IMap<T> = {}):IMap<T>
 {
 	if(source) for(let key of Object.keys(source))
+	{
 		target[key] = source[key];
+	}
 	return target;
 }
 
@@ -84,7 +86,7 @@ export class Scheme
 	render(
 		entries?:Webpack.Entry,
 		projectFileRoot:string = this.projectFileRoot,
-		buildDirectory:string = this.buildDirectory):Webpack.Configuration
+		buildDirectory:string  = this.buildDirectory):Webpack.Configuration
 	{
 		if(!projectFileRoot)
 			throw "No projectFileRoot specified";
@@ -190,6 +192,12 @@ export class Scheme
 			});
 		}
 
+		let relativeNamePrefix = "";
+		for(let i = 0; i<buildDirectory.split("/").length; i++)
+		{
+			relativeNamePrefix += "../"
+		}
+
 		if(_.fonts)
 		{
 			rules.push({
@@ -197,7 +205,7 @@ export class Scheme
 				use: {
 					loader: 'file-loader',
 					options: {
-						name: "../_client/_fonts/[name]/[hash].[ext]",
+						name: `${relativeNamePrefix}${buildDirectory}/_fonts/[name]/[hash].[ext]`,
 						useRelativePath: true
 					}
 				}
@@ -207,16 +215,16 @@ export class Scheme
 		if(_.images)
 		{
 			rules.push(
-			{
-				test: /\.(png|jpg|jpeg|gif)$/,
-				use: {
-					loader: 'file-loader',
-					options: {
-						name: "../_client/_images/[name]/[hash].[ext]",
-						useRelativePath: true
+				{
+					test: /\.(png|jpg|jpeg|gif)$/,
+					use: {
+						loader: 'file-loader',
+						options: {
+							name: `${relativeNamePrefix}${buildDirectory}/_images/[name]/[hash].[ext]`,
+							useRelativePath: true
+						}
 					}
-				}
-			});
+				});
 		}
 
 		if(_.sourceMaps)
@@ -229,7 +237,7 @@ export class Scheme
 			new Webpack.HashedModuleIdsPlugin());
 
 		const common = _.common || [];
-		if(common.indexOf(("common"))==-1)
+		if(common.indexOf(("common"))== -1)
 			common.push("common");
 
 		plugins.push(
@@ -337,7 +345,7 @@ export module Scheme
 			return this;
 		}
 
-		provide(config:{[key:string]:any} = null):this
+		provide(config:{ [key:string]:any } = null):this
 		{
 			this.scheme.provide = config;
 			return this;
@@ -372,7 +380,7 @@ export module Scheme
 		render(
 			entry?:Webpack.Entry,
 			projectFileRoot:string = this.scheme.projectFileRoot,
-			buildDirectory:string = this.scheme.buildDirectory):Webpack.Configuration
+			buildDirectory:string  = this.scheme.buildDirectory):Webpack.Configuration
 		{
 			return this.scheme.render(entry, projectFileRoot, buildDirectory);
 		}
