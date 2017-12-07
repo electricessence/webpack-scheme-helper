@@ -19,13 +19,35 @@ export module FilePattern
 	export const EXT:string = _EXT;
 }
 
+export interface IMap<T>
+{
+	[key:string]:T
+}
+
 Object.freeze(FilePattern);
 
+function merge<T>(source:IMap<T>,target:IMap<T> = {}):IMap<T>
+{
+	if(source) for(let key of Object.keys(source))
+		target[key] = source[key];
+	return target;
+}
 
 export class Scheme
 {
+
 	/**
-	 * File system path where build is deployed.
+	 * File system path of the project root.
+	 */
+	entries:IMap<any> = {};
+
+	/**
+	 * File system path of the project root.
+	 */
+	projectFileRoot:string;
+
+	/**
+	 * Relative path from the project root where files ar built..
 	 */
 	buildDirectory:string;
 
@@ -45,7 +67,7 @@ export class Scheme
 	cache:boolean = true;
 	sourceMaps:boolean = true;
 
-	provide:{[key:string]:any};
+	provide:IMap<any>;
 
 	common:string[];
 
@@ -54,26 +76,35 @@ export class Scheme
 
 	/**
 	 * The step by step method by which the config is built.
-	 * @param entry Standard Webpack entry map.
+	 * @param entries Standard Webpack entry map.
 	 * @param projectFileRoot File system path to the project root.
 	 * @param buildDirectory Sub-path to the build folder.
 	 * @returns {Webpack.Configuration}
 	 */
 	render(
-		entry:Webpack.Entry,
-		projectFileRoot:string,
+		entries?:Webpack.Entry,
+		projectFileRoot:string = this.projectFileRoot,
 		buildDirectory:string = this.buildDirectory):Webpack.Configuration
 	{
+		if(!projectFileRoot)
+			throw "No projectFileRoot specified";
+		if(!buildDirectory)
+			throw "No buildDirectory specified";
+
 		const buildPath = Path.resolve(projectFileRoot, buildDirectory);
-		if(!buildPath)
-			throw "No buildPath specified";
+
+		// Shallow merge a copy of the entries.
+		entries = merge(
+			entries || {},
+			merge(this.entries)
+		);
 
 		const _ = this;
 		let filePattern = _.filePattern;
 		if(_.minify) filePattern += ".min";
 
 		const config:Webpack.Configuration = {
-			entry: entry,
+			entry: entries,
 			output: {
 				filename: filePattern + JS,
 				chunkFilename: filePattern + JS,
@@ -161,24 +192,15 @@ export class Scheme
 
 		if(_.fonts)
 		{
-			const addFont = function(pattern:RegExp)//, type:string)
-			{
-				rules.push({
-					test: pattern,
-					use: {
-						loader: 'file-loader',
-						options: {
-							name: "../_client/_fonts/[name]/[hash].[ext]",
-							useRelativePath: true
-						}
+			rules.push({
+				test: /\.(eot|svg|[ot]tf|woff2?)$/,
+				use: {
+					loader: 'file-loader',
+					options: {
+						name: `~/${buildDirectory}/_fonts/[name]/[hash].[ext]`
 					}
-				});
-			};
-			addFont(/\.svg$/);//,"image/svg+xml");
-			addFont(/\.woff$/);//,"application/font-woff");
-			addFont(/\.woff2$/);//,"application/font-woff2");
-			addFont(/\.[ot]tf$/);//,"application/octet-stream");
-			addFont(/\.eot$/);//,"application/vnd.ms-fontobject");
+				}
+			});
 		}
 
 		if(_.images)
@@ -189,8 +211,7 @@ export class Scheme
 				use: {
 					loader: 'file-loader',
 					options: {
-						name: "_images/[name]/[hash].[ext]",
-						useRelativePath: true
+						name: "~/${buildDirectory}_images/[name]/[hash].[ext]"
 					}
 				}
 			});
@@ -237,6 +258,25 @@ export module Scheme
 		constructor()
 		{
 			this.scheme = new Scheme();
+		}
+
+		addEntry(key:string, value:any = null):this
+		{
+			let entries = this.scheme.entries || (this.scheme.entries = {});
+			entries[key] = value || key;
+			return this;
+		}
+
+		projectRoot(filePath:string):this
+		{
+			this.scheme.projectFileRoot = filePath;
+			return this;
+		}
+
+		buildDirectory(path:string):this
+		{
+			this.scheme.buildDirectory = path;
+			return this;
 		}
 
 		javascript(enabled:boolean = true):this
@@ -326,8 +366,8 @@ export module Scheme
 		 */
 
 		render(
-			entry:Webpack.Entry,
-			projectFileRoot:string,
+			entry?:Webpack.Entry,
+			projectFileRoot:string = this.scheme.projectFileRoot,
 			buildDirectory:string = this.scheme.buildDirectory):Webpack.Configuration
 		{
 			return this.scheme.render(entry, projectFileRoot, buildDirectory);
