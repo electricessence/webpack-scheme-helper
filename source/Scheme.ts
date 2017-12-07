@@ -132,7 +132,7 @@ export class Scheme
 			rules.push({
 				test: /.+\.tsx?$/,
 				use: 'ts-loader',
-				exclude: /node_modules/
+				exclude: '/node_modules/'
 			});
 		}
 
@@ -197,7 +197,8 @@ export class Scheme
 				use: {
 					loader: 'file-loader',
 					options: {
-						name: `~/${buildDirectory}/_fonts/[name]/[hash].[ext]`
+						name: "../_client/_fonts/[name]/[hash].[ext]",
+						useRelativePath: true
 					}
 				}
 			});
@@ -211,7 +212,8 @@ export class Scheme
 				use: {
 					loader: 'file-loader',
 					options: {
-						name: "~/${buildDirectory}_images/[name]/[hash].[ext]"
+						name: "../_client/_images/[name]/[hash].[ext]",
+						useRelativePath: true
 					}
 				}
 			});
@@ -255,9 +257,11 @@ export module Scheme
 	{
 		readonly scheme:Scheme;
 
-		constructor()
+		constructor(projectFileRoot?:string, buildDirectory?:string)
 		{
 			this.scheme = new Scheme();
+			this.scheme.projectFileRoot = projectFileRoot;
+			this.scheme.buildDirectory = buildDirectory;
 		}
 
 		addEntry(key:string, value:any = null):this
