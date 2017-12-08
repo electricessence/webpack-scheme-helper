@@ -1,6 +1,6 @@
 # Webpack Scheme Helper
 
-Minimize the amount of configuration and code necessary for webpack configuration by using **_'schemes'_**.  
+Minimize the amount of configuration and code necessary for webpack by using **_'schemes'_**.  
 Otherwise known as 'scenarios'.
 
 *Source code is in TypeScript.*
