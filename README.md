@@ -25,7 +25,7 @@ Other file types are managed by including their loader as part of your ```packag
 * CSS, SaSS, and LeSS
 * Fonts and Images.
 
-**After which, all you have to do is provide the project path and build paths.**
+**After which, _all you have to do is provide the project path and build paths._**
 
 ### Example
 
