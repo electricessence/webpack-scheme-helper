@@ -142,7 +142,7 @@ export default
 
 Demonstrates how to use TypeScript for configs instead of just JavaScript.
 
-```
+```js
 'use strict';
 // Interpret TypeScript.
 require('ts-node').register({ compilerOptions:{ target: "ES2016" } });
