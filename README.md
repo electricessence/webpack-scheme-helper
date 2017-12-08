@@ -166,41 +166,43 @@ Currently, schemes work with your existing Webpack installation as a peer depend
 If you are planning to use features beyond just JavaScript you will need include the modules and loaders necessary.
 
 ```
-npm install webpack-scheme-helper --save-dev
+npm install webpack webpack-scheme-helper --save-dev
 ```
 
 The following are the modules necessary if you are going to use a specific loader.
 
-##### TypeScript
+#### TypeScript
 
 ```
 npm install ts-loader --save-dev
 ```
 
-##### CSS
+Also recommended:
 
 ```
-npm install style-loader --save-dev
-npm install css-loader --save-dev
+npm install ts-node --save-dev
+npm install tslib --save
 ```
 
-##### SaSS
+#### CSS
 
 ```
-npm install node-sass --save-dev
-npm install style-loader --save-dev
-npm install scss-loader --save-dev
+npm install css-loader style-loader --save-dev
 ```
 
-##### LeSS
+#### SaSS
 
 ```
-npm install less --save-dev
-npm install style-loader --save-dev
-npm install less-loader --save-dev
+npm install node-sass style-loader less-loader --save-dev
 ```
 
-##### Fonts or Images
+#### LeSS
+
+```
+npm install less style-loader less-loader --save-dev
+```
+
+#### Fonts or Images
 
 ```
 npm install file-loader --save-dev
