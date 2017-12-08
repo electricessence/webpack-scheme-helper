@@ -1,6 +1,10 @@
 export * from './constants';
 
 import Scheme from './Scheme';
-export { Scheme}; // Make webpack available here to simplify dependencies and use/implementation.
+import {ConfigBuilder, Roots} from './ConfigBuilder';
+
+export { Scheme, ConfigBuilder }; // Make webpack available here to simplify dependencies and use/implementation.
 //noinspection JSUnusedGlobalSymbols
-export default Scheme;
+export default function(roots:Roots):ConfigBuilder {
+	return new ConfigBuilder(roots);
+};
