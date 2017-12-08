@@ -38,7 +38,7 @@ It will successfully compile and bundle all TypeScript, CSS, LeSS files (and SaS
 wwwroot
 |- /_client
   |- /vendor
-    |- _fonts
+    |- /_fonts
       ... (fonts from bootstrap)
     |- jquery
     |- bootstrap
