@@ -70,6 +70,7 @@ WebpackScheme
 
 	// Calling .full() will look for .scss files
 	// But SaSS is not used in this project.
+	// Ommiting this will have no effect if there are no .scss files in your project.
 	.scss(false)
 
 	// Compile all the modules individually.
