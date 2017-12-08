@@ -7,7 +7,7 @@ Otherwise known as 'scenarios'.
 
 ## Schemes
 
-Schemes are a typical way that files are deployed.
+Schemes are a typical way that files are deployed.  
 This utility simplifies the construction of a config that follows a typical scheme.
 
 Certain settings are enabled by default:
