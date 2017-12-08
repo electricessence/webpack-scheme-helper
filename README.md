@@ -1,12 +1,13 @@
 # Webpack Scheme Helper
 
-Minimize the amount of configuration and code necessary for webpack configuration by using **_'schemes'_**.
+Minimize the amount of configuration and code necessary for webpack configuration by using **_'schemes'_**.  Otherwise known as 'scenarios'.
 
 *Source code is in TypeScript.*
 
 ## Schemes
 
-Schemes are a typical way that files are deployed.  This utility simplifies the construction of a config that follows a typical scheme.
+Schemes are a typical way that files are deployed.
+This utility simplifies the construction of a config that follows a typical scheme.
 
 Certain settings are enabled by default:
 
