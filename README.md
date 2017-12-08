@@ -64,8 +64,8 @@ WebpackScheme
 	// Define the build paths for this config.
 	.builder({
 		project: PROJECT.ROOT,
-		web: WEB.ROOT,
-		build: `${BUILD.PATH}/vendor`
+		web: WEB.ROOT, // wwwroot
+		build: `${BUILD.PATH}/vendor` // _client/vendor
 	})
 
 	// Calling .full() will look for .scss files
@@ -107,8 +107,8 @@ WebpackScheme
 	// Define the build paths for this config.
 	.builder({
 		project: PROJECT.ROOT,
-		web: WEB.ROOT,
-		build: `${BUILD.PATH}/local`
+		web: WEB.ROOT, // wwwroot
+		build: `${BUILD.PATH}/local` // _client/local
 	})
 
 	// Enable LeSS processing.
