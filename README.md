@@ -150,10 +150,6 @@ require('ts-node').register({ compilerOptions:{ target: "ES2016" } });
 module.exports = require('./Webpack/config.ts');
 ```
 
-### Working Sample:
-
-https://github.com/electricessence/aspnet-core2-starter
-
 ## Why?
 
 Webpack configs are detailed and highly configurable, but settings must be configured in multiple places for one specific file type or option to work properly.
@@ -163,12 +159,13 @@ A lot of time and care has gone into getting this utility to follow Webpack best
 
 ## Installation
 
-Currently, schemes work with your existing Webpack installation as a peer dependency.
-If you are planning to use features beyond just JavaScript you will need include the modules and loaders necessary.
-
 ```
 npm install webpack webpack-scheme-helper --save-dev
 ```
+
+Currently, schemes work with your existing Webpack installation as a peer dependency.
+If you're only packing JavaScript, then no additional installation is necessary.
+But if you are planning to use features beyond just JavaScript you will need include the modules and loaders necessary.
 
 The following are the modules necessary if you are going to use a specific loader.
 
@@ -224,3 +221,8 @@ https://webpack.js.org/loaders/file-loader/
 ```
 npm install file-loader --save-dev
 ```
+
+
+## Working Cross-Platform Sample
+
+https://github.com/electricessence/aspnet-core2-starter
