@@ -5,7 +5,7 @@ import * as AssetsPlugin from 'assets-webpack-plugin';
 import * as Loader from './constants/Loaders';
 import * as Pattern from './constants/LoaderPatterns';
 import {SOURCE_MAP} from './constants/Devtools';
-import {JS, TS, CSS, SCSS, LESS, JSX, TSX} from './constants/Extensions';
+import {JS, TS, CSS, SCSS, LESS, JSX, TSX, HTM, HTML} from './constants/Extensions';
 import {NAME, HASH, CHUNKHASH, EXT} from "./constants/FilePathPattern";
 import {IMap} from "./IMap";
 import {Roots} from "./Roots";
@@ -20,6 +20,7 @@ export class Scheme
 
 	javascript:boolean = true;
 	typescript:boolean = false;
+	html:boolean = false;
 	css:boolean = false;
 	scss:boolean = false;
 	less:boolean = false;
@@ -84,6 +85,12 @@ export module Scheme
 		typescript(enabled:boolean = true):this
 		{
 			this.scheme.typescript = enabled;
+			return this;
+		}
+
+		html(enabled:boolean = true):this
+		{
+			this.scheme.html = enabled;
 			return this;
 		}
 
@@ -287,6 +294,22 @@ export module Scheme
 					test: Pattern.TS,
 					use: Loader.TS,
 					exclude: '/node_modules/'
+				});
+			}
+
+			if(S.html)
+			{
+				extensions.push(HTM);
+				extensions.push(HTML);
+				rules.push({
+					test: Pattern.HTML,
+					use: [{
+						loader: Loader.HTML,
+						options: {
+							minimize: S.minify,
+							sourceMap: S.sourceMaps
+						}
+					}]
 				});
 			}
 

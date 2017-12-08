@@ -185,7 +185,17 @@ npm install ts-node --save-dev
 npm install tslib --save
 ```
 
+#### HTML
+
+https://webpack.js.org/loaders/html-loader/
+
+```
+npm install html-loader --save-dev
+```
+
 #### CSS
+
+https://webpack.js.org/loaders/css-loader/
 
 ```
 npm install css-loader style-loader --save-dev
@@ -193,17 +203,23 @@ npm install css-loader style-loader --save-dev
 
 #### SaSS
 
+https://webpack.js.org/loaders/sass-loader/
+
 ```
 npm install node-sass style-loader less-loader --save-dev
 ```
 
 #### LeSS
 
+https://webpack.js.org/loaders/less-loader/
+
 ```
 npm install less style-loader less-loader --save-dev
 ```
 
 #### Fonts or Images
+
+https://webpack.js.org/loaders/file-loader/
 
 ```
 npm install file-loader --save-dev
