@@ -22,7 +22,7 @@ Certain settings are enabled by default:
 Other file types are managed by including their loader as part of your ```package.json``` and enabling them in your scheme.
 
 * TypeScript (and .tsx files)
-* CSS, SaSS, and LeSS
+* HTML, CSS, SaSS, and LeSS
 * Fonts and Images.
 
 **After which, _all you have to do is provide the project path and build paths._**
