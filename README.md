@@ -29,7 +29,7 @@ Other file types are managed by including their loader as part of your ```packag
 
 ### Example
 
-The following example takes all the dependencies defined in the ```package.json``` along with any manually specified entries.
+The following example takes all the dependencies defined in the ```package.json``` along with any manually specified entries.  
 It will successfully compile and bundle all TypeScript, CSS, SaSS, LeSS files into a web folder structure like so:
 
 (An underscore prefix is used so as not to be confused with a route or to designate a category.)
