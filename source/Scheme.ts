@@ -1,6 +1,7 @@
 import * as Path from 'path';
 import * as webpack from 'webpack';
 import * as CleanPlugin from 'clean-webpack-plugin';
+import * as ExtractTextCssPlugin from 'extract-text-webpack-plugin';
 import * as AssetsPlugin from 'assets-webpack-plugin';
 import * as Loader from './constants/Loaders';
 import * as Pattern from './constants/LoaderPatterns';
@@ -176,6 +177,8 @@ export module Scheme
 		 */
 		entries:webpack.Entry = {};
 
+		plugins:webpack.Plugin[] = [];
+
 		/**
 		 * Adds an entry to the entries collection.
 		 * @param {string} key
@@ -190,6 +193,24 @@ export module Scheme
 		}
 
 		/**
+		 * Inserts additional plugs before the ones used to finalize the pack.
+		 * @param plugin
+		 */
+		addPlugin(plugin:webpack.Plugin):this
+		{
+			const plugins = this.plugins || (this.plugins = []);
+			plugins.push(plugin);
+			return this;
+		}
+
+		addPlugins(...plugins:webpack.Plugin[]):this
+		{
+			for(let p of plugins)
+				this.addPlugin(p);
+			return this;
+		}
+
+		/**
 		 * Adds any set of module names to the list of entries.
 		 * @param {string[]} modules
 		 * @returns {this}
@@ -200,6 +221,14 @@ export module Scheme
 			{
 				this.addEntry(m);
 			}
+			return this;
+		}
+
+		cssFile?:string | null;
+
+		extractCssTo(cssFile?:string | null):this
+		{
+			this.cssFile = cssFile;
 			return this;
 		}
 
@@ -313,84 +342,77 @@ export module Scheme
 				});
 			}
 
+			const extractCSS:ExtractTextCssPlugin | null
+				      = this.cssFile ? new ExtractTextCssPlugin(this.cssFile) : null;
+
 			if(S.css)
 			{
+				const use = [
+					{
+						loader: Loader.STYLE
+					}, {
+						loader: Loader.CSS,
+						options: {sourceMap: S.sourceMaps}
+					}
+				];
+
 				extensions.push(CSS);
 				rules.push({
 					test: Pattern.CSS,
-					use: [
-						{
-							loader: Loader.STYLE
-						}, {
-							loader: Loader.CSS,
-							options: {sourceMap: S.sourceMaps}
-						}
-					]
+					use: extractCSS ? extractCSS.extract(use) : use
 				});
 			}
 
 			if(S.scss)
 			{
+				const use = [
+					{
+						loader: Loader.STYLE
+					}, {
+						loader: Loader.CSS,
+						options: {sourceMap: S.sourceMaps}
+					}, {
+						loader: Loader.SCSS,
+						options: {sourceMap: S.sourceMaps}
+					}
+				];
+
 				extensions.push(SCSS);
 				rules.push({
 					test: Pattern.SCSS,
-					use: [
-						{
-							loader: Loader.STYLE
-						}, {
-							loader: Loader.CSS,
-							options: {sourceMap: S.sourceMaps}
-						}, {
-							loader: Loader.SCSS,
-							options: {sourceMap: S.sourceMaps}
-						}
-					]
+					use: extractCSS ? extractCSS.extract(use) : use
 				});
 			}
 
 			if(S.less)
 			{
+				const use = [
+					{
+						loader: Loader.STYLE
+					}, {
+						loader: Loader.CSS,
+						options: {sourceMap: S.sourceMaps}
+					}, {
+						loader: Loader.LESS,
+						options: {sourceMap: S.sourceMaps}
+					}
+				];
+
 				extensions.push(LESS);
 				rules.push({
 					test: Pattern.LESS,
-					use: [
-						{
-							loader: Loader.STYLE
-						}, {
-							loader: Loader.CSS,
-							options: {sourceMap: S.sourceMaps}
-						}, {
-							loader: Loader.LESS,
-							options: {sourceMap: S.sourceMaps}
-						}
-					]
+					use: extractCSS ? extractCSS.extract(use) : use
 				});
 			}
 
-			const ASSET_NAME = `${NAME}/${HASH}${EXT}`;
-
-			if(S.fonts)
+			if(S.fonts || S.images)
 			{
 				rules.push({
-					test: Pattern.FONT,
+					test: S.fonts && S.images ? Pattern.ASSETS : (S.fonts ? Pattern.FONTS : Pattern.IMAGES ),
 					use: {
 						loader: Loader.FILE,
 						options: {
-							name: `_fonts/${ASSET_NAME}`,
-							publicPath: `${roots.build}/`
-						}
-					}
-				});
-			}
-
-			if(S.images)
-			{
-				rules.push({
-					test: Pattern.IMAGE,
-					use: {
-						loader: Loader.FILE,
-						options: {
-							name: `_images/${ASSET_NAME}`,
+							name: `_assets/${NAME}/${HASH}${EXT}`,
 							publicPath: `${roots.build}/`
 						}
 					}
@@ -406,6 +428,9 @@ export module Scheme
 			plugins.push(
 				new webpack.HashedModuleIdsPlugin());
 
+			if(extractCSS)
+				plugins.push(extractCSS);
+
 			if(entryCount>1)
 			{
 				const common = _.common || [];
@@ -418,6 +443,9 @@ export module Scheme
 
 			if(_.provided) plugins.push(
 				new webpack.ProvidePlugin(_.provided));
+
+			if(this.plugins) for(let p of this.plugins)
+				plugins.push(p);
 
 			plugins.push(
 				new AssetsPlugin({path: buildPath}));
