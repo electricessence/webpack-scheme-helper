@@ -13,11 +13,12 @@ import {Roots} from "./Roots";
 import merge from "./merge";
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
+const DEFAULT_FILE_PATTERN = `${NAME}/${CHUNKHASH}`;
 const DEFAULT_COMMON_CHUNK_NAME = "common";
 
 export class Scheme
 {
-	filePattern:string = `${NAME}/${NAME}-${CHUNKHASH}`;
+	filePattern:string = DEFAULT_FILE_PATTERN;
 
 	javascript:boolean = true;
 	typescript:boolean = false;
@@ -152,6 +153,12 @@ export module Scheme
 		minify(enabled:boolean = true):this
 		{
 			this.scheme.minify = enabled;
+			return this;
+		}
+
+		filePattern(pattern:string = DEFAULT_FILE_PATTERN)
+		{
+			this.scheme.filePattern = pattern;
 			return this;
 		}
 
@@ -290,7 +297,7 @@ export module Scheme
 			const entries = _.entries;
 			const entryCount = Object.keys(entries).length;
 
-			let filePattern = S.filePattern;
+			let filePattern = S.filePattern || DEFAULT_FILE_PATTERN;
 			if(S.minify) filePattern += ".min";
 
 			const extensions:string[] = [];
